@@ -4,244 +4,244 @@ import os
 import random
 import pygame
 
-TELA_LARGURA = 500
-TELA_ALTURA = 800
+SCREEN_WIDTH = 500
+SCREEN_HEIGHT = 800
 
-IMAGEM_CANO = pygame.transform.scale2x(
+PIPE_IMAGE = pygame.transform.scale2x(
     pygame.image.load(os.path.join("images", "pipe.png"))
 )
-IMAGEM_CHAO = pygame.transform.scale2x(
+FLOOR_IMAGE = pygame.transform.scale2x(
     pygame.image.load(os.path.join("images", "floor.png"))
 )
-IMAGEM_BACKGROUND = pygame.transform.scale2x(
+BACKGROUND_IMAGE = pygame.transform.scale2x(
     pygame.image.load(os.path.join("images", "background.png"))
 )
-IMAGENS_PASSARO = [
+BIRD_IMAGES = [
     pygame.transform.scale2x(pygame.image.load(os.path.join("images", "bird1.png"))),
     pygame.transform.scale2x(pygame.image.load(os.path.join("images", "bird2.png"))),
     pygame.transform.scale2x(pygame.image.load(os.path.join("images", "bird3.png"))),
 ]
 
 pygame.font.init()
-FONTE_PONTOS = pygame.font.SysFont("arial", 50)
+POINTS_FONT = pygame.font.SysFont("arial", 50)
 
 
-class Passaro:
-    IMAGENS = IMAGENS_PASSARO
+class Bird:
+    IMAGES = BIRD_IMAGES
     # animações da rotação
-    ROTACAO_MAXIMA = 25
-    VELOCIDADE_ROTACAO = 20
-    TEMPO_ANIMACAO = 5
+    MAXIMUM_ROTATION = 25
+    ROTATION_SPEED = 20
+    TIME_ANIMATION = 5
 
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.tempo = 0
-        self.angulo = 0
-        self.velocidade = 0
-        self.contagem_imagem = 0
-        self.altura = self.y
-        self.imagem = self.IMAGENS[0]
+        self.time = 0
+        self.angle = 0
+        self.speed = 0
+        self.image_count = 0
+        self.height = self.y
+        self.image = self.IMAGES[0]
 
-    def pular(self):
-        self.velocidade = -10.5
-        self.tempo = 0
-        self.altura = self.y
+    def jump(self):
+        self.speed = -10.5
+        self.time = 0
+        self.height = self.y
 
-    def mover(self):
-        # calcula do deslocamento
-        self.tempo += 1
-        deslocamento = 1.5 * (self.tempo**2) + self.velocidade * self.tempo
+    def move(self):
+        # calcula o deslocamento
+        self.time += 1
+        shift = 1.5 * (self.time**2) + self.speed * self.time
 
         # restringe o deslocamento
-        if deslocamento > 16:
-            deslocamento = 16
-        elif deslocamento < 0:
-            deslocamento -= 2
+        if shift > 16:
+            shift = 16
+        elif shift < 0:
+            shift -= 2
 
-        self.y += deslocamento
+        self.y += shift
 
         # ângulo do pássaro
-        if deslocamento < 0 or self.y < (self.altura + 50):
-            if self.angulo < self.ROTACAO_MAXIMA:
-                self.angulo = self.ROTACAO_MAXIMA
+        if shift < 0 or self.y < (self.height + 50):
+            if self.angle < self.MAXIMUM_ROTATION:
+                self.angle = self.MAXIMUM_ROTATION
         else:
-            if self.angulo > -90:
-                self.angulo -= self.VELOCIDADE_ROTACAO
+            if self.angle > -90:
+                self.angle -= self.ROTATION_SPEED
 
-    def desenhar(self, tela):
+    def draw(self, screen):
         # define qual imagem do pássaro vai usar
-        self.contagem_imagem += 1
+        self.image_count += 1
 
-        if self.contagem_imagem < self.TEMPO_ANIMACAO:
-            self.imagem = self.IMAGENS[0]
-        elif self.contagem_imagem < self.TEMPO_ANIMACAO * 2:
-            self.imagem = self.IMAGENS[1]
-        elif self.contagem_imagem < self.TEMPO_ANIMACAO * 3:
-            self.imagem = self.IMAGENS[2]
-        elif self.contagem_imagem < self.TEMPO_ANIMACAO * 4:
-            self.imagem = self.IMAGENS[1]
-        elif self.contagem_imagem < self.TEMPO_ANIMACAO * 4 + 1:
-            self.imagem = self.IMAGENS[0]
-            self.contagem_imagem = 0
+        if self.image_count < self.TIME_ANIMATION:
+            self.image = self.IMAGES[0]
+        elif self.image_count < self.TIME_ANIMATION * 2:
+            self.image = self.IMAGES[1]
+        elif self.image_count < self.TIME_ANIMATION * 3:
+            self.image = self.IMAGES[2]
+        elif self.image_count < self.TIME_ANIMATION * 4:
+            self.image = self.IMAGES[1]
+        elif self.image_count < self.TIME_ANIMATION * 4 + 1:
+            self.image = self.IMAGES[0]
+            self.image_count = 0
 
         # se o pássaro tiver caindo não bate asas
-        if self.angulo <= -80:
-            self.imagem = self.IMAGENS[1]
-            self.contagem_imagem = self.TEMPO_ANIMACAO * 2
+        if self.angle <= -80:
+            self.image = self.IMAGES[1]
+            self.image_count = self.TIME_ANIMATION * 2
 
         # desenha a imagem
-        imagem_rotacionada = pygame.transform.rotate(self.imagem, self.angulo)
-        posicao_centro_imagem = self.imagem.get_rect(topleft=(self.x, self.y)).center
-        retangulo = imagem_rotacionada.get_rect(center=posicao_centro_imagem)
-        tela.blit(imagem_rotacionada, retangulo.topleft)
+        rotated_image = pygame.transform.rotate(self.image, self.angle)
+        position_center_imagem = self.image.get_rect(topleft=(self.x, self.y)).center
+        rectangle = rotated_image.get_rect(center=position_center_imagem)
+        screen.blit(rotated_image, rectangle.topleft)
 
     def get_mask(self):
-        return pygame.mask.from_surface(self.imagem)
+        return pygame.mask.from_surface(self.image)
 
 
-class Cano:
-    DISTANCIA = 200
-    VELOCIDADE = 5
+class Pipe:
+    DISTANCE = 200
+    SPEED = 5
 
     def __init__(self, x):
         self.x = x
-        self.altura = 0
-        self.posicao_topo = 0
-        self.posicao_base = 0
-        self.passou = False
-        self.CANO_TOPO = pygame.transform.flip(IMAGEM_CANO, False, True)
-        self.CANO_BASE = IMAGEM_CANO
-        self.definir_altura()
+        self.height = 0
+        self.top_position = 0
+        self.base_position = 0
+        self.has_passed = False
+        self.PIPE_TOP = pygame.transform.flip(PIPE_IMAGE, False, True)
+        self.PIPE_BASE = PIPE_IMAGE
+        self.set_height()
 
-    def definir_altura(self):
-        self.altura = random.randrange(50, 450)
-        self.posicao_topo = self.altura - self.CANO_TOPO.get_height()
-        self.posicao_base = self.altura + self.DISTANCIA
+    def set_height(self):
+        self.height = random.randrange(50, 450)
+        self.top_position = self.height - self.PIPE_TOP.get_height()
+        self.base_position = self.height + self.DISTANCE
 
-    def mover(self):
-        self.x -= self.VELOCIDADE
+    def move(self):
+        self.x -= self.SPEED
 
-    def desenhar(self, tela):
-        tela.blit(self.CANO_TOPO, (self.x, self.posicao_topo))
-        tela.blit(self.CANO_BASE, (self.x, self.posicao_base))
+    def draw(self, screen):
+        screen.blit(self.PIPE_TOP, (self.x, self.top_position))
+        screen.blit(self.PIPE_BASE, (self.x, self.base_position))
 
-    def colidir(self, passaro):
-        passaro_mask = passaro.get_mask()
-        topo_mask = pygame.mask.from_surface(self.CANO_TOPO)
-        base_mask = pygame.mask.from_surface(self.CANO_BASE)
+    def collide(self, bird):
+        bird_mask = bird.get_mask()
+        top_mask = pygame.mask.from_surface(self.PIPE_TOP)
+        base_mask = pygame.mask.from_surface(self.PIPE_BASE)
 
-        distancia_topo = (self.x - passaro.x, self.posicao_topo - round(passaro.y))
-        distancia_base = (self.x - passaro.x, self.posicao_base - round(passaro.y))
+        top_distance = (self.x - bird.x, self.top_position - round(bird.y))
+        base_distance = (self.x - bird.x, self.base_position - round(bird.y))
 
-        topo_ponto = passaro_mask.overlap(topo_mask, distancia_topo)
-        base_ponto = passaro_mask.overlap(base_mask, distancia_base)
+        top_point = bird_mask.overlap(top_mask, top_distance)
+        base_point = bird_mask.overlap(base_mask, base_distance)
 
-        return base_ponto or topo_ponto
+        return base_point or top_point
 
 
-class Chao:
-    VELOCIDADE = 5
-    LARGURA = IMAGEM_CHAO.get_width()
-    IMAGEM = IMAGEM_CHAO
+class Floor:
+    SPEED = 5
+    WIDTH = FLOOR_IMAGE.get_width()
+    IMAGE = FLOOR_IMAGE
 
     def __init__(self, y):
         self.y = y
         self.x1 = 0
-        self.x2 = self.LARGURA
+        self.x2 = self.WIDTH
 
-    def mover(self):
-        self.x1 -= self.VELOCIDADE
-        self.x2 -= self.VELOCIDADE
+    def move(self):
+        self.x1 -= self.SPEED
+        self.x2 -= self.SPEED
 
-        if self.x1 + self.LARGURA < 0:
-            self.x1 = self.x2 + self.LARGURA
-        if self.x2 + self.LARGURA < 0:
-            self.x2 = self.x1 + self.LARGURA
+        if self.x1 + self.WIDTH < 0:
+            self.x1 = self.x2 + self.WIDTH
+        if self.x2 + self.WIDTH < 0:
+            self.x2 = self.x1 + self.WIDTH
 
-    def desenhar(self, tela):
-        tela.blit(self.IMAGEM, (self.x1, self.y))
-        tela.blit(self.IMAGEM, (self.x2, self.y))
+    def draw(self, screen):
+        screen.blit(self.IMAGE, (self.x1, self.y))
+        screen.blit(self.IMAGE, (self.x2, self.y))
 
 
-def desenhar_tela(tela, passaros, canos, chao, pontos):
-    tela.blit(IMAGEM_BACKGROUND, (0, 0))
+def draw_screen(screen, birds, pipes, floor, points):
+    screen.blit(BACKGROUND_IMAGE, (0, 0))
 
-    for passaro in passaros:
-        passaro.desenhar(tela)
+    for bird in birds:
+        bird.draw(screen)
 
-    for cano in canos:
-        cano.desenhar(tela)
+    for pipe in pipes:
+        pipe.draw(screen)
 
-    texto = FONTE_PONTOS.render(f"Pontuação: {pontos}", 1, (255, 255, 255))
-    tela.blit(texto, (TELA_LARGURA - 10 - texto.get_width(), 10))
+    points_text = POINTS_FONT.render(f"Pontuação: {points}", 1, (255, 255, 255))
+    screen.blit(points_text, (SCREEN_WIDTH - 10 - points_text.get_width(), 10))
 
-    chao.desenhar(tela)
+    floor.draw(screen)
     pygame.display.update()
 
 
 def main():
-    pontos = 0
-    relogio = pygame.time.Clock()
+    points = 0
+    clock = pygame.time.Clock()
 
-    chao = Chao(730)
-    canos = [Cano(700)]
-    passaros = [Passaro(230, 350)]
+    floor = Floor(730)
+    pipes = [Pipe(700)]
+    birds = [Bird(230, 350)]
 
-    tela = pygame.display.set_mode((TELA_LARGURA, TELA_ALTURA))
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-    rodando = True
+    running = True
 
-    while rodando:
-        relogio.tick(30)
+    while running:
+        clock.tick(30)
 
         # interação com o usuário
-        for evento in pygame.event.get():
-            print(evento.type)
-            if evento.type == pygame.QUIT:
-                rodando = False
+        for event in pygame.event.get():
+            print(event.type)
+            if event.type == pygame.QUIT:
+                running = False
                 pygame.quit()
                 quit()
 
-            if evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE:
-                for passaro in passaros:
-                    passaro.pular()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                for bird in birds:
+                    bird.jump()
 
         # mover as coisas
-        for passaro in passaros:
-            passaro.mover()
+        for bird in birds:
+            bird.move()
 
-        chao.mover()
+        floor.move()
 
-        adicionar_cano = False
-        remover_canos = []
+        add_pipe = False
+        remove_pipes = []
 
-        for cano in canos:
-            for i, passaro in enumerate(passaros):
-                if cano.colidir(passaro):
-                    passaros.pop(i)
+        for pipe in pipes:
+            for i, bird in enumerate(birds):
+                if pipe.collide(bird):
+                    birds.pop(i)
 
-                if not cano.passou and passaro.x > cano.x:
-                    cano.passou = True
-                    adicionar_cano = True
+                if not pipe.has_passed and bird.x > pipe.x:
+                    pipe.has_passed = True
+                    add_pipe = True
 
-            cano.mover()
+            pipe.move()
 
-            if cano.x + cano.CANO_TOPO.get_width() < 0:
-                remover_canos.append(cano)
+            if pipe.x + pipe.PIPE_TOP.get_width() < 0:
+                remove_pipes.append(pipe)
 
-        if adicionar_cano:
-            pontos += 1
-            canos.append(Cano(600))
+        if add_pipe:
+            points += 1
+            pipes.append(Pipe(600))
 
-        for cano in remover_canos:
-            canos.remove(cano)
+        for pipe in remove_pipes:
+            pipes.remove(pipe)
 
-        for i, passaro in enumerate(passaros):
-            if (passaro.y + passaro.imagem.get_height()) > chao.y or passaro.y < 0:
-                passaros.pop(i)
+        for i, bird in enumerate(birds):
+            if (bird.y + bird.image.get_height()) > floor.y or bird.y < 0:
+                birds.pop(i)
 
-        desenhar_tela(tela, passaros, canos, chao, pontos)
+        draw_screen(screen, birds, pipes, floor, points)
 
 
 if __name__ == "__main__":
