@@ -1,5 +1,6 @@
-import os
 import pygame
+
+from .utils import get_image
 
 from .bird import Bird
 from .pipe import Pipe
@@ -13,9 +14,7 @@ class Game:
     SCREEN_WIDTH = 500
     SCREEN_HEIGHT = 800
 
-    BACKGROUND_IMAGE = pygame.transform.scale2x(
-        pygame.image.load(os.path.join("images", "background.png"))
-    )
+    BACKGROUND_IMAGE = get_image("background")
 
     POINTS_FONT = pygame.font.SysFont("arial", 50)
 

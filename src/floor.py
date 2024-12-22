@@ -1,16 +1,10 @@
-import os
-import pygame
-
-
-FLOOR_IMAGE = pygame.transform.scale2x(
-    pygame.image.load(os.path.join("images", "floor.png"))
-)
+from .utils import get_image
 
 
 class Floor:
+    IMAGE = get_image("floor")
+    WIDTH = IMAGE.get_width()
     SPEED = 5
-    WIDTH = FLOOR_IMAGE.get_width()
-    IMAGE = FLOOR_IMAGE
 
     def __init__(self, y):
         self.y = y

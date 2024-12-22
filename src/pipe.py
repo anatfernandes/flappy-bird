@@ -1,14 +1,12 @@
-import os
 import random
 import pygame
 
-
-PIPE_IMAGE = pygame.transform.scale2x(
-    pygame.image.load(os.path.join("images", "pipe.png"))
-)
+from .utils import get_image
 
 
 class Pipe:
+    IMAGE = get_image("pipe")
+
     DISTANCE = 200
     SPEED = 5
 
@@ -18,8 +16,8 @@ class Pipe:
         self.top_position = 0
         self.base_position = 0
         self.has_passed = False
-        self.PIPE_TOP = pygame.transform.flip(PIPE_IMAGE, False, True)
-        self.PIPE_BASE = PIPE_IMAGE
+        self.PIPE_TOP = pygame.transform.flip(self.IMAGE, False, True)
+        self.PIPE_BASE = self.IMAGE
         self.set_height()
 
     def set_height(self):
