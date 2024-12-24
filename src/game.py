@@ -29,20 +29,19 @@ class Game:
         self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
 
     def start(self):
-        running = True
-
-        while running:
+        while True:
             self.clock.tick(30)
 
             # interação com o usuário
             for event in pygame.event.get():
-                print(event.type)
-                if event.type == pygame.QUIT:
-                    running = False
+                event_type = self.get_event_type(event)
+
+                if event_type == "QUIT":
                     pygame.quit()
                     quit()
+                    break
 
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                if event_type == "JUMP":
                     for bird in self.birds:
                         bird.jump()
 
@@ -83,6 +82,15 @@ class Game:
             self.draw_screen(
                 self.screen, self.birds, self.pipes, self.floor, self.points
             )
+
+    def get_event_type(self, event):
+        match event.type:
+            case pygame.QUIT:
+                return "QUIT"
+            case pygame.KEYDOWN:
+                return "JUMP" if event.key == pygame.K_SPACE else event.key
+            case _:
+                return event.type
 
     def draw_screen(self, screen, birds, pipes, floor, points):
         screen.blit(self.BACKGROUND_IMAGE, (0, 0))
