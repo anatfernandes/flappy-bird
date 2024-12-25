@@ -61,19 +61,23 @@ class Game:
 
                     if not pipe.has_passed and bird.x > pipe.x:
                         pipe.has_passed = True
-                        add_pipe = True
+                    self.add_pipe()
 
                 pipe.move()
 
                 if pipe.x + pipe.PIPE_TOP.get_width() < 0:
-                    remove_pipes.append(pipe)
+                    self.remove_pipe(pipe)
 
-            if add_pipe:
-                self.points += 1
-                self.pipes.append(Pipe(600))
+            self.draw_screen(
+                self.screen, self.birds, self.pipes, self.floor, self.points
+            )
 
-            for pipe in remove_pipes:
-                self.pipes.remove(pipe)
+    def add_pipe(self):
+        self.points += 1
+        self.pipes.append(Pipe(600))
+
+    def remove_pipe(self, pipe):
+        self.pipes.remove(pipe)
 
             for i, bird in enumerate(self.birds):
                 if (bird.y + bird.image.get_height()) > self.floor.y or bird.y < 0:
