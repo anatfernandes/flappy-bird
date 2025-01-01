@@ -47,9 +47,8 @@ class Bird:
         if shift < 0 or self.y < (self.height + 50):
             if self.angle < self.MAXIMUM_ROTATION:
                 self.angle = self.MAXIMUM_ROTATION
-        else:
-            if self.angle > -90:
-                self.angle -= self.ROTATION_SPEED
+        elif self.angle > -90:
+            self.angle -= self.ROTATION_SPEED
 
     def draw(self, screen):
         # define qual imagem do pássaro vai usar
