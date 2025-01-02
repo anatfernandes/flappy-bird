@@ -52,11 +52,13 @@ class Game:
             self.floor.move()
 
             for pipe in self.pipes:
-                tracked_birds = self.track_birds(pipe)
+                self.track_birds(pipe)
 
-                if tracked_birds["add_pipe"]:
-                    pipe.has_passed = True
-                    self.add_pipe()
+                if len(self.birds) > 0:
+                    pipe.update_has_passed(self.birds[0])
+
+                    if pipe.passing:
+                        self.add_pipe()
 
                 pipe.move()
 
@@ -75,8 +77,6 @@ class Game:
         self.pipes.remove(pipe)
 
     def track_birds(self, pipe):
-        add_pipe = False
-
         for i, bird in enumerate(self.birds):
             bird_height = bird.y + bird.image.get_height()
 
@@ -91,11 +91,6 @@ class Game:
 
             if remove_bird:
                 self.birds.pop(i)
-
-            if not pipe.has_passed and bird.x > pipe.x:
-                add_pipe = True
-
-        return {"add_pipe": add_pipe}
 
     def get_event_type(self, event):
         match event.type:

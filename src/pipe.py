@@ -16,6 +16,7 @@ class Pipe:
         self.top_position = 0
         self.base_position = 0
         self.has_passed = False
+        self.passing = False
         self.PIPE_TOP = pygame.transform.flip(self.IMAGE, False, True)
         self.PIPE_BASE = self.IMAGE
         self.set_height()
@@ -44,3 +45,12 @@ class Pipe:
         base_point = bird_mask.overlap(base_mask, base_distance)
 
         return base_point or top_point
+
+    def update_has_passed(self, bird):
+        if bird.x > self.x:
+            if not self.has_passed and self.passing:
+                self.has_passed = True
+                self.passing = False
+
+            if not self.has_passed:
+                self.passing = True
