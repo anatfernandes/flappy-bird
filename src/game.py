@@ -51,19 +51,7 @@ class Game:
 
             self.floor.move()
 
-            for pipe in self.pipes:
-                self.track_birds(pipe)
-
-                if len(self.birds) > 0:
-                    pipe.update_has_passed(self.birds[0])
-
-                    if pipe.passing:
-                        self.add_pipe()
-
-                pipe.move()
-
-                if pipe.x + pipe.PIPE_TOP.get_width() < 0:
-                    self.remove_pipe(pipe)
+            self.track_pipes()
 
             self.draw_screen(
                 self.screen, self.birds, self.pipes, self.floor, self.points
@@ -75,6 +63,21 @@ class Game:
 
     def remove_pipe(self, pipe):
         self.pipes.remove(pipe)
+
+    def track_pipes(self):
+        for pipe in self.pipes:
+            self.track_birds(pipe)
+
+            if len(self.birds) > 0:
+                pipe.update_has_passed(self.birds[0])
+
+                if pipe.passing:
+                    self.add_pipe()
+
+            pipe.move()
+
+            if pipe.x + pipe.PIPE_TOP.get_width() < 0:
+                self.remove_pipe(pipe)
 
     def track_birds(self, pipe):
         for i, bird in enumerate(self.birds):
