@@ -13,18 +13,19 @@ pygame.font.init()
 class Game:
     SCREEN_WIDTH = 500
     SCREEN_HEIGHT = 800
+    SPEED = 5
 
     BACKGROUND_IMAGE = get_image("background")
 
-    POINTS_FONT = pygame.font.SysFont("arial", 50)
+    POINTS_FONT = pygame.font.SysFont("arial", 32)
 
     def __init__(self):
         self.points = 0
         self.clock = pygame.time.Clock()
 
-        self.floor = Floor(730)
-        self.pipes = [Pipe(700)]
-        self.birds = [Bird(230, 350)]
+        self.floor = Floor(y=730, speed=self.SPEED)
+        self.pipes = [Pipe(x=700, speed=self.SPEED)]
+        self.birds = [Bird(x=230, y=350)]
 
         self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
 
@@ -32,7 +33,6 @@ class Game:
         while True:
             self.clock.tick(30)
 
-            # interação com o usuário
             for event in pygame.event.get():
                 event_type = self.get_event_type(event)
 
@@ -45,13 +45,7 @@ class Game:
                     for bird in self.birds:
                         bird.jump()
 
-            # mover as coisas
-            for bird in self.birds:
-                bird.move()
-
-            self.floor.move()
-
-            self.track_pipes()
+            self.move_entities()
 
             self.draw_screen(
                 self.screen, self.birds, self.pipes, self.floor, self.points
@@ -59,7 +53,7 @@ class Game:
 
     def add_pipe(self):
         self.points += 1
-        self.pipes.append(Pipe(600))
+        self.pipes.append(Pipe(x=600, speed=self.SPEED))
 
     def remove_pipe(self, pipe):
         self.pipes.remove(pipe)
@@ -95,6 +89,14 @@ class Game:
             if remove_bird:
                 self.birds.pop(i)
 
+    def move_entities(self):
+        for bird in self.birds:
+            bird.move()
+
+        self.floor.move()
+
+        self.track_pipes()
+
     def get_event_type(self, event):
         match event.type:
             case pygame.QUIT:
@@ -103,6 +105,16 @@ class Game:
                 return "JUMP" if event.key == pygame.K_SPACE else event.key
             case _:
                 return event.type
+
+    def blit_texts(self, screen, points):
+        points_message = f"Pontuação: {points}"
+        color = (255, 255, 255)
+        antialias = 1
+
+        points_text = self.POINTS_FONT.render(points_message, antialias, color)
+        points_text_x_position = self.SCREEN_WIDTH - 10 - points_text.get_width()
+
+        screen.blit(points_text, (points_text_x_position, 10))
 
     def draw_screen(self, screen, birds, pipes, floor, points):
         screen.blit(self.BACKGROUND_IMAGE, (0, 0))
@@ -113,10 +125,8 @@ class Game:
         for pipe in pipes:
             pipe.draw(screen)
 
-        points_text = self.POINTS_FONT.render(
-            f"Pontuação: {points}", 1, (255, 255, 255)
-        )
-        screen.blit(points_text, (self.SCREEN_WIDTH - 10 - points_text.get_width(), 10))
-
         floor.draw(screen)
+
+        self.blit_texts(screen, points)
+
         pygame.display.update()
