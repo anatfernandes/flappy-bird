@@ -5,20 +5,23 @@ from .utils import get_image
 
 
 class Pipe:
-    IMAGE = get_image("pipe")
+    PIPE_BASE = get_image("pipe")
+    PIPE_TOP = pygame.transform.flip(PIPE_BASE, False, True)
 
     DISTANCE = 200
     SPEED = 5
 
-    def __init__(self, x):
+    def __init__(self, x, speed=5):
         self.x = x
+        self.SPEED = speed
+
         self.height = 0
         self.top_position = 0
         self.base_position = 0
+
         self.has_passed = False
         self.passing = False
-        self.PIPE_TOP = pygame.transform.flip(self.IMAGE, False, True)
-        self.PIPE_BASE = self.IMAGE
+
         self.set_height()
 
     def set_height(self):
