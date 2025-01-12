@@ -20,6 +20,8 @@ class Game:
     POINTS_FONT = pygame.font.SysFont("arial", 32)
 
     def __init__(self):
+        pygame.display.set_caption("Flappy Bird")
+
         self.points = 0
         self.clock = pygame.time.Clock()
 
