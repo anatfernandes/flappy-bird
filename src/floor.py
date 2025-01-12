@@ -6,10 +6,11 @@ class Floor:
     WIDTH = IMAGE.get_width()
     SPEED = 5
 
-    def __init__(self, y):
+    def __init__(self, y, speed):
         self.y = y
         self.x1 = 0
         self.x2 = self.WIDTH
+        self.SPEED = speed
 
     def move(self):
         self.x1 -= self.SPEED
@@ -17,6 +18,7 @@ class Floor:
 
         if self.x1 + self.WIDTH < 0:
             self.x1 = self.x2 + self.WIDTH
+
         if self.x2 + self.WIDTH < 0:
             self.x2 = self.x1 + self.WIDTH
 
