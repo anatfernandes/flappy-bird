@@ -1,0 +1,8 @@
+from enum import Enum
+
+
+class GameFontTypeEnum(Enum):
+    PRIMARY = "PRIMARY"
+    PRIMARY_INVERT = "PRIMARY_INVERT"
+    SECONDARY = "SECONDARY"
+    SECONDARY_INVERT = "SECONDARY_INVERT"
