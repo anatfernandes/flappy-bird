@@ -11,27 +11,30 @@ pygame.font.init()
 
 
 class Game:
-    SCREEN_WIDTH = 500
-    SCREEN_HEIGHT = 800
-    SPEED = 5
-
     BACKGROUND_IMAGE = get_image("background")
 
     POINTS_FONT = pygame.font.SysFont("arial", 32)
 
-    def __init__(self):
+    def __init__(self, config, screen, clock):
         pygame.display.set_caption("Flappy Bird")
 
         self.points = 0
-        self.clock = pygame.time.Clock()
+        self.clock = clock
+        self.config = config
+        self.screen = screen
+
+        self.initial_time = pygame.time.get_ticks()
+
+        self.SCREEN_WIDTH = config["SCREEN_WIDTH"]
+        self.SCREEN_HEIGHT = config["SCREEN_HEIGHT"]
+
+        self.set_speed()
 
         self.floor = Floor(y=730, speed=self.SPEED)
-        self.pipes = [Pipe(x=700, speed=self.SPEED)]
+        self.pipes = [Pipe(x=700, speed=self.SPEED, config=config)]
         self.birds = [Bird(x=230, y=350)]
 
-        self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
-
-    def start(self):
+    def run(self):
         while True:
             self.clock.tick(30)
 
@@ -49,13 +52,25 @@ class Game:
 
             self.move_entities()
 
+            if self.end_game():
+                self.update_config()
+                break
+
             self.draw_screen(
                 self.screen, self.birds, self.pipes, self.floor, self.points
             )
 
+    def end_game(self):
+        return not len(self.birds)
+
+    def set_speed(self):
+        self.SPEED = {"Fácil": 3, "Normal": 5, "Difícil": 7, "Impossível": 10}[
+            self.config["difficulties"]["current"]
+        ]
+
     def add_pipe(self):
         self.points += 1
-        self.pipes.append(Pipe(x=600, speed=self.SPEED))
+        self.pipes.append(Pipe(x=600, speed=self.SPEED, config=self.config))
 
     def remove_pipe(self, pipe):
         self.pipes.remove(pipe)
@@ -99,6 +114,14 @@ class Game:
 
         self.track_pipes()
 
+    def update_config(self):
+        self.config["game"]["points"] = self.points
+        self.config["game"]["time"] = self.get_game_time()
+        self.config["page"] = "END_GAME"
+
+    def get_game_time(self):
+        return (pygame.time.get_ticks() - self.initial_time) // 1000
+
     def get_event_type(self, event):
         match event.type:
             case pygame.QUIT:
@@ -110,13 +133,18 @@ class Game:
 
     def blit_texts(self, screen, points):
         points_message = f"Pontuação: {points}"
+        time_message = f"Tempo: {self.get_game_time()}s"
         color = (255, 255, 255)
         antialias = 1
 
         points_text = self.POINTS_FONT.render(points_message, antialias, color)
         points_text_x_position = self.SCREEN_WIDTH - 10 - points_text.get_width()
 
+        time_text = self.POINTS_FONT.render(time_message, antialias, color)
+        time_text_x_position = self.SCREEN_WIDTH - 10 - time_text.get_width()
+
         screen.blit(points_text, (points_text_x_position, 10))
+        screen.blit(time_text, (time_text_x_position, 50))
 
     def draw_screen(self, screen, birds, pipes, floor, points):
         screen.blit(self.BACKGROUND_IMAGE, (0, 0))
