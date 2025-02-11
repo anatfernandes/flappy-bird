@@ -11,8 +11,9 @@ class Pipe:
     DISTANCE = 200
     SPEED = 5
 
-    def __init__(self, x, speed=5):
+    def __init__(self, x, config, speed=5):
         self.x = x
+        self.config = config
         self.SPEED = speed
 
         self.height = 0
@@ -22,7 +23,19 @@ class Pipe:
         self.has_passed = False
         self.passing = False
 
+        self.set_distance()
         self.set_height()
+
+    def set_distance(self):
+        current_difficulty = self.config["difficulties"]["current"]
+        distance_by_difficult = {
+            "EASY": 300,
+            "NORMAL": 220,
+            "HARD": 200,
+            "IMPOSSIBLE": 200,
+        }[self.config["difficulties"][current_difficulty]]
+
+        self.DISTANCE = distance_by_difficult
 
     def set_height(self):
         self.height = random.randrange(50, 450)
