@@ -24,7 +24,9 @@ class EndGame:
 
         self.SCREEN_WIDTH = config["SCREEN_WIDTH"]
         self.SCREEN_HEIGHT = config["SCREEN_HEIGHT"]
-        self.ai_training_mode = config["modes"]["current"] == "IA"
+        self.ai_training_mode = (
+            config["modes"][config["modes"]["current"]] == "IA_TRAIN"
+        )
 
         self.set_buttons()
 
